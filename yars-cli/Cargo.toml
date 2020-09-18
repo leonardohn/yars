@@ -1,0 +1,14 @@
+[package]
+name = "yars-cli"
+edition = "2018"
+version = "0.1.0"
+authors = ["Leonardo H. Neumann <leonardohn@null.net>"]
+description = "Yet Another RISC-V Simulator - Command Line Interface"
+repository = "https://github.com/leonardohn/yars"
+categories = ["emulators"]
+license = "MIT"
+
+[dependencies]
+
+[dependencies.yars-lib]
+path = "../yars-lib"

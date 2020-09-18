@@ -8,6 +8,10 @@ repository = "https://github.com/leonardohn/yars"
 categories = ["emulators"]
 license = "MIT"
 
+[[bin]]
+name = "yars"
+path = "src/main.rs"
+
 [dependencies]
 
 [dependencies.yars-lib]

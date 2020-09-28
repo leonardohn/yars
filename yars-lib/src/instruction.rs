@@ -56,6 +56,24 @@ impl InstructionFormat {
     }
 }
 
+#[repr(u8)]
+#[derive(Copy, Clone, Debug, Eq, PartialEq)]
+pub enum FenceKind {
+    R = 0b10,
+    W = 0b01,
+    RW = 0b11,
+}
+
+impl fmt::Display for FenceKind {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::R => write!(f, "r"),
+            Self::W => write!(f, "w"),
+            Self::RW => write!(f, "rw"),
+        }
+    }
+}
+
 type Register = u8;
 
 #[rustfmt::skip]
@@ -117,7 +135,7 @@ pub enum Instruction {
     JALR { rd: Register, rs1: Register, imm: i16 },
 
     // Sync
-    FENCE { pred: u8, succ: u8 },
+    FENCE { pred: FenceKind, succ: FenceKind },
     FENCETSO,
 
     // System

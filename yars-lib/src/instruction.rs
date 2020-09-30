@@ -1,3 +1,4 @@
+use std::convert::TryFrom;
 use std::fmt;
 
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
@@ -70,6 +71,19 @@ impl fmt::Display for FenceKind {
             Self::R => write!(f, "r"),
             Self::W => write!(f, "w"),
             Self::RW => write!(f, "rw"),
+        }
+    }
+}
+
+impl TryFrom<u8> for FenceKind {
+    type Error = ();
+
+    fn try_from(value: u8) -> Result<Self, Self::Error> {
+        match value {
+            0b10 => Ok(Self::R),
+            0b01 => Ok(Self::W),
+            0b11 => Ok(Self::RW),
+            _ => Err(()),
         }
     }
 }

@@ -13,6 +13,7 @@ name = "yars"
 path = "src/main.rs"
 
 [dependencies]
+clap = "3.0.0-beta.2"
 
 [dependencies.yars-lib]
 path = "../yars-lib"

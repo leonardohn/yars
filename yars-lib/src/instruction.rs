@@ -1,3 +1,4 @@
+use crate::register::IntRegister;
 use std::convert::TryFrom;
 use std::fmt;
 
@@ -88,65 +89,63 @@ impl TryFrom<u8> for FenceKind {
     }
 }
 
-type Register = u8;
-
 #[rustfmt::skip]
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub enum Instruction {
     /* --- RV32I --- */
  
     // Load
-    LUI { rd: Register, imm: i32 },
-    LB { rd: Register, rs1: Register, imm: i16 },
-    LH { rd: Register, rs1: Register, imm: i16 },
-    LW { rd: Register, rs1: Register, imm: i16 },
-    LBU { rd: Register, rs1: Register, imm: i16 },
-    LHU { rd: Register, rs1: Register, imm: i16 },
+    LUI { rd: IntRegister, imm: i32 },
+    LB { rd: IntRegister, rs1: IntRegister, imm: i16 },
+    LH { rd: IntRegister, rs1: IntRegister, imm: i16 },
+    LW { rd: IntRegister, rs1: IntRegister, imm: i16 },
+    LBU { rd: IntRegister, rs1: IntRegister, imm: i16 },
+    LHU { rd: IntRegister, rs1: IntRegister, imm: i16 },
 
     // Store
-    SB { rs1: Register, rs2: Register, imm: i16 },
-    SH { rs1: Register, rs2: Register, imm: i16 },
-    SW { rs1: Register, rs2: Register, imm: i16 },
+    SB { rs1: IntRegister, rs2: IntRegister, imm: i16 },
+    SH { rs1: IntRegister, rs2: IntRegister, imm: i16 },
+    SW { rs1: IntRegister, rs2: IntRegister, imm: i16 },
 
     // Shift
-    SLLI { rd: Register, rs1: Register, shamt: u16 },
-    SRLI { rd: Register, rs1: Register, shamt: u16 },
-    SRAI { rd: Register, rs1: Register, shamt: u16 },
-    SLL { rd: Register, rs1: Register, rs2: Register },
-    SRL { rd: Register, rs1: Register, rs2: Register },
-    SRA { rd: Register, rs1: Register, rs2: Register },
+    SLLI { rd: IntRegister, rs1: IntRegister, shamt: u16 },
+    SRLI { rd: IntRegister, rs1: IntRegister, shamt: u16 },
+    SRAI { rd: IntRegister, rs1: IntRegister, shamt: u16 },
+    SLL { rd: IntRegister, rs1: IntRegister, rs2: IntRegister },
+    SRL { rd: IntRegister, rs1: IntRegister, rs2: IntRegister },
+    SRA { rd: IntRegister, rs1: IntRegister, rs2: IntRegister },
 
     // Arithmetic
-    ADDI { rd: Register, rs1: Register, imm: i16 },
-    ADD { rd: Register, rs1: Register, rs2: Register },
-    SUB { rd: Register, rs1: Register, rs2: Register },
+    ADDI { rd: IntRegister, rs1: IntRegister, imm: i16 },
+    ADD { rd: IntRegister, rs1: IntRegister, rs2: IntRegister },
+    SUB { rd: IntRegister, rs1: IntRegister, rs2: IntRegister },
 
     // Logical
-    ORI { rd: Register, rs1: Register, imm: i16 },
-    XORI { rd: Register, rs1: Register, imm: i16 },
-    ANDI { rd: Register, rs1: Register, imm: i16 },
-    OR { rd: Register, rs1: Register, rs2: Register },
-    XOR { rd: Register, rs1: Register, rs2: Register },
-    AND { rd: Register, rs1: Register, rs2: Register },
+    ORI { rd: IntRegister, rs1: IntRegister, imm: i16 },
+    XORI { rd: IntRegister, rs1: IntRegister, imm: i16 },
+    ANDI { rd: IntRegister, rs1: IntRegister, imm: i16 },
+    OR { rd: IntRegister, rs1: IntRegister, rs2: IntRegister },
+    XOR { rd: IntRegister, rs1: IntRegister, rs2: IntRegister },
+    AND { rd: IntRegister, rs1: IntRegister, rs2: IntRegister },
 
     // Compare
-    SLTI { rd: Register, rs1: Register, imm: i16 },
-    SLTIU { rd: Register, rs1: Register, imm: i16 },
-    SLT { rd: Register, rs1: Register, rs2: Register },
-    SLTU { rd: Register, rs1: Register, rs2: Register },
+    SLTI { rd: IntRegister, rs1: IntRegister, imm: i16 },
+    SLTIU { rd: IntRegister, rs1: IntRegister, imm: i16 },
+    SLT { rd: IntRegister, rs1: IntRegister, rs2: IntRegister },
+    SLTU { rd: IntRegister, rs1: IntRegister, rs2: IntRegister },
 
     // Branch
-    BEQ { rs1: Register, rs2: Register, imm: i16 },
-    BNE { rs1: Register, rs2: Register, imm: i16 },
-    BLT { rs1: Register, rs2: Register, imm: i16 },
-    BGE { rs1: Register, rs2: Register, imm: i16 },
-    BLTU { rs1: Register, rs2: Register, imm: i16 },
-    BGEU { rs1: Register, rs2: Register, imm: i16 },
+    BEQ { rs1: IntRegister, rs2: IntRegister, imm: i16 },
+    BNE { rs1: IntRegister, rs2: IntRegister, imm: i16 },
+    BLT { rs1: IntRegister, rs2: IntRegister, imm: i16 },
+    BGE { rs1: IntRegister, rs2: IntRegister, imm: i16 },
+    BLTU { rs1: IntRegister, rs2: IntRegister, imm: i16 },
+    BGEU { rs1: IntRegister, rs2: IntRegister, imm: i16 },
 
     // Jump
-    JAL { rd: Register, imm: i32 },
-    AUIPC { rd: Register, imm: i32 },
-    JALR { rd: Register, rs1: Register, imm: i16 },
+    JAL { rd: IntRegister, imm: i32 },
+    AUIPC { rd: IntRegister, imm: i32 },
+    JALR { rd: IntRegister, rs1: IntRegister, imm: i16 },
 
     // Sync
     FENCE { pred: FenceKind, succ: FenceKind },
@@ -162,23 +161,23 @@ pub enum Instruction {
 
     /* --- RVZicsr --- */
 
-    CSRRWI { rd: Register, uimm: u8, csr: u16 },
-    CSRRSI { rd: Register, uimm: u8, csr: u16 },
-    CSRRCI { rd: Register, uimm: u8, csr: u16 },
-    CSRRW { rd: Register, rs1: Register, csr: u16 },
-    CSRRS { rd: Register, rs1: Register, csr: u16 },
-    CSRRC { rd: Register, rs1: Register, csr: u16 },
+    CSRRWI { rd: IntRegister, uimm: u8, csr: u16 },
+    CSRRSI { rd: IntRegister, uimm: u8, csr: u16 },
+    CSRRCI { rd: IntRegister, uimm: u8, csr: u16 },
+    CSRRW { rd: IntRegister, rs1: IntRegister, csr: u16 },
+    CSRRS { rd: IntRegister, rs1: IntRegister, csr: u16 },
+    CSRRC { rd: IntRegister, rs1: IntRegister, csr: u16 },
 
     /* --- RV32M --- */
 
-    MUL { rd: Register, rs1: Register, rs2: Register },
-    MULH { rd: Register, rs1: Register, rs2: Register },
-    MULHSU { rd: Register, rs1: Register, rs2: Register },
-    MULHU { rd: Register, rs1: Register, rs2: Register },
-    DIV { rd: Register, rs1: Register, rs2: Register },
-    DIVU { rd: Register, rs1: Register, rs2: Register },
-    REM { rd: Register, rs1: Register, rs2: Register },
-    REMU { rd: Register, rs1: Register, rs2: Register },
+    MUL { rd: IntRegister, rs1: IntRegister, rs2: IntRegister },
+    MULH { rd: IntRegister, rs1: IntRegister, rs2: IntRegister },
+    MULHSU { rd: IntRegister, rs1: IntRegister, rs2: IntRegister },
+    MULHU { rd: IntRegister, rs1: IntRegister, rs2: IntRegister },
+    DIV { rd: IntRegister, rs1: IntRegister, rs2: IntRegister },
+    DIVU { rd: IntRegister, rs1: IntRegister, rs2: IntRegister },
+    REM { rd: IntRegister, rs1: IntRegister, rs2: IntRegister },
+    REMU { rd: IntRegister, rs1: IntRegister, rs2: IntRegister },
 }
 
 impl fmt::Display for Instruction {
@@ -254,9 +253,9 @@ impl TryFrom<u32> for Instruction {
 
         match format {
             InstructionFormat::R => {
-                let rd = ((inst >> 7) & 0b11111) as u8;
-                let rs1 = ((inst >> 15) & 0b11111) as u8;
-                let rs2 = ((inst >> 20) & 0b11111) as u8;
+                let rd = IntRegister::try_from(((inst >> 7) & 0b11111) as u8)?;
+                let rs1 = IntRegister::try_from(((inst >> 15) & 0b11111) as u8)?;
+                let rs2 = IntRegister::try_from(((inst >> 20) & 0b11111) as u8)?;
                 let funct3 = ((inst >> 12) & 0b111) as u8;
                 let funct7 = ((inst >> 25) & 0b1111111) as u8;
                 let fn3_opcode = (funct3 << 5) | (opcode >> 2);
@@ -309,8 +308,9 @@ impl TryFrom<u32> for Instruction {
             }
             InstructionFormat::R4 => Err(()),
             InstructionFormat::I => {
-                let rd = ((inst >> 7) & 0b11111) as u8;
-                let rs1 = ((inst >> 15) & 0b11111) as u8;
+                let rd = IntRegister::try_from(((inst >> 7) & 0b11111) as u8)?;
+                let uimm = ((inst >> 15) & 0b11111) as u8;
+                let rs1 = IntRegister::try_from(uimm)?;
                 let funct3 = ((inst >> 12) & 0b111) as u8;
                 let imm = ((inst as i32) >> 20) as i16;
                 let csr = imm as u16 & 0b111111111111;
@@ -351,16 +351,16 @@ impl TryFrom<u32> for Instruction {
                     0b001_11100 => Ok(Instruction::CSRRW { rd, rs1, csr }),
                     0b010_11100 => Ok(Instruction::CSRRS { rd, rs1, csr }),
                     0b011_11100 => Ok(Instruction::CSRRC { rd, rs1, csr }),
-                    0b101_11100 => Ok(Instruction::CSRRWI { rd, uimm: rs1, csr }),
-                    0b110_11100 => Ok(Instruction::CSRRSI { rd, uimm: rs1, csr }),
-                    0b111_11100 => Ok(Instruction::CSRRCI { rd, uimm: rs1, csr }),
+                    0b101_11100 => Ok(Instruction::CSRRWI { rd, uimm, csr }),
+                    0b110_11100 => Ok(Instruction::CSRRSI { rd, uimm, csr }),
+                    0b111_11100 => Ok(Instruction::CSRRCI { rd, uimm, csr }),
                     _ => Err(()),
                 }
             }
             InstructionFormat::S => {
                 let funct3 = ((inst >> 12) & 0b111) as u8;
-                let rs1 = ((inst >> 15) & 0b11111) as u8;
-                let rs2 = ((inst >> 20) & 0b11111) as u8;
+                let rs1 = IntRegister::try_from(((inst >> 15) & 0b11111) as u8)?;
+                let rs2 = IntRegister::try_from(((inst >> 20) & 0b11111) as u8)?;
                 let imm115 = (inst >> 25) & 0b1111111;
                 let imm40 = (inst >> 7) & 0b11111;
                 let imm = (imm115 << 5) | imm40;
@@ -376,8 +376,8 @@ impl TryFrom<u32> for Instruction {
             }
             InstructionFormat::B => {
                 let funct3 = ((inst >> 12) & 0b111) as u8;
-                let rs1 = ((inst >> 15) & 0b11111) as u8;
-                let rs2 = ((inst >> 20) & 0b11111) as u8;
+                let rs1 = IntRegister::try_from(((inst >> 15) & 0b11111) as u8)?;
+                let rs2 = IntRegister::try_from(((inst >> 20) & 0b11111) as u8)?;
                 let imm12 = (inst >> 31) & 0b1;
                 let imm105 = (inst >> 25) & 0b111111;
                 let imm41 = (inst >> 8) & 0b1111;
@@ -397,7 +397,7 @@ impl TryFrom<u32> for Instruction {
                 }
             }
             InstructionFormat::U => {
-                let rd = ((inst >> 7) & 0b11111) as u8;
+                let rd = IntRegister::try_from(((inst >> 7) & 0b11111) as u8)?;
                 let imm = (inst & !0b111111111111) as i32;
 
                 match opcode >> 2 {
@@ -407,7 +407,7 @@ impl TryFrom<u32> for Instruction {
                 }
             }
             InstructionFormat::J => {
-                let rd = ((inst >> 7) & 0b11111) as u8;
+                let rd = IntRegister::try_from(((inst >> 7) & 0b11111) as u8)?;
                 let imm20 = (inst >> 31) & 0b1;
                 let imm101 = (inst >> 21) & 0b1111111111;
                 let imm11 = (inst >> 20) & 0b1;

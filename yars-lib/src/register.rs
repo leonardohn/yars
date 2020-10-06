@@ -117,3 +117,41 @@ impl TryFrom<u8> for IntRegister {
         }
     }
 }
+
+#[derive(Copy, Clone, Debug)]
+pub struct IntRegisterSet {
+    reg: [u32; 32],
+}
+
+impl IntRegisterSet {
+    pub fn new() -> Self {
+        let reg = [0; 32];
+        Self { reg }
+    }
+
+    pub fn read(&self, reg: IntRegister) -> u32 {
+        let reg = reg as usize;
+        self.reg[reg]
+    }
+
+    pub fn write(&mut self, reg: IntRegister, val: u32) {
+        let reg = reg as usize;
+        if reg != 0 {
+            self.reg[reg] = val;
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn read_write_int_register_set() {
+        let mut rs = IntRegisterSet::new();
+        rs.write(IntRegister::Zero, 1);
+        rs.write(IntRegister::RA, 1);
+        assert_eq!(rs.read(IntRegister::Zero), 0);
+        assert_eq!(rs.read(IntRegister::RA), 1);
+    }
+}

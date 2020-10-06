@@ -142,6 +142,24 @@ impl IntRegisterSet {
     }
 }
 
+impl fmt::Display for IntRegisterSet {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        for (i, r) in self.reg.chunks(4).enumerate() {
+            let i = 4 * i as u8;
+            let n = (i..i + 4)
+                .map(|n| format!("{}", IntRegister::try_from(n).unwrap()))
+                .collect::<Vec<_>>();
+
+            writeln!(
+                f,
+                "{:>4}={:#010X} {:>4}={:#010X} {:>4}={:#010X} {:>4}={:#010X}",
+                n[0], r[0], n[1], r[1], n[2], r[2], n[3], r[3],
+            )?;
+        }
+        Ok(())
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

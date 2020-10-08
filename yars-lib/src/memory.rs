@@ -1,9 +1,21 @@
+use goblin::elf::header::{EM_RISCV, ET_EXEC};
+use goblin::elf::program_header::PT_LOAD;
+use goblin::elf::Elf;
+use goblin::error::Error;
 use std::convert::TryInto;
+use std::path::Path;
+
+pub enum ProgramError {
+    OutOfMemory,
+    UnsupportedBinary,
+    Goblin(Error),
+}
 
 #[derive(Clone, Debug)]
 pub struct Memory {
     memory: Box<[u8]>,
     offset: u32,
+    entry: u32,
 }
 
 impl Memory {
@@ -11,6 +23,7 @@ impl Memory {
         Self {
             memory: vec![0u8; size as usize].into_boxed_slice(),
             offset: 0,
+            entry: 0,
         }
     }
 
@@ -22,10 +35,46 @@ impl Memory {
         self.offset
     }
 
-    pub fn load_program(&mut self, program: &[u8]) {
-        let len = program.len();
-        self.offset = len as u32;
-        self.memory[..len].copy_from_slice(program);
+    pub fn entry(&self) -> u32 {
+        self.entry
+    }
+
+    pub fn set_entry(&mut self, entry: u32) {
+        self.entry = entry;
+    }
+
+    pub fn load_program<P: AsRef<Path>>(&mut self, program: P) -> Result<(), ProgramError> {
+        let buffer = std::fs::read(program).map_err(|e| ProgramError::Goblin(Error::IO(e)))?;
+        let binary = Elf::parse(&buffer).map_err(|e| ProgramError::Goblin(e))?;
+
+        if binary.header.e_machine != EM_RISCV || binary.header.e_type != ET_EXEC || binary.is_64 {
+            return Err(ProgramError::UnsupportedBinary);
+        }
+
+        self.entry = binary.entry as u32;
+
+        for ph in binary.program_headers {
+            if ph.p_type == PT_LOAD {
+                let vm_range = ph.vm_range();
+                let file_range = ph.file_range();
+
+                if vm_range.end > self.memory.len() {
+                    return Err(ProgramError::OutOfMemory);
+                }
+
+                if vm_range.end as u32 > self.offset {
+                    self.offset = vm_range.end as u32;
+                }
+
+                for i in self.memory[vm_range].iter_mut() {
+                    *i = 0;
+                }
+
+                self.memory[file_range.clone()].copy_from_slice(&buffer[file_range]);
+            }
+        }
+
+        Ok(())
     }
 
     pub fn read_byte(&self, address: u32) -> u8 {

@@ -9,3 +9,4 @@ categories = ["emulators"]
 license = "MIT"
 
 [dependencies]
+goblin = "0.2.3"

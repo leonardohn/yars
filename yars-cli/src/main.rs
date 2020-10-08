@@ -11,7 +11,7 @@ struct Opts {
     #[clap(about = "Logs instruction execution")]
     log: bool,
 
-    #[clap(short, long, value_name = "size", default_value = "128")]
+    #[clap(short, long, value_name = "size", default_value = "32")]
     #[clap(about = "Allocate <size> MiB for target memory")]
     memory: usize,
 

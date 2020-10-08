@@ -155,19 +155,6 @@ pub enum Instruction {
     ECALL,
     EBREAK,
 
-    /* --- RVZifencei --- */
-
-    FENCEI,
-
-    /* --- RVZicsr --- */
-
-    CSRRWI { rd: IntRegister, uimm: u8, csr: u16 },
-    CSRRSI { rd: IntRegister, uimm: u8, csr: u16 },
-    CSRRCI { rd: IntRegister, uimm: u8, csr: u16 },
-    CSRRW { rd: IntRegister, rs1: IntRegister, csr: u16 },
-    CSRRS { rd: IntRegister, rs1: IntRegister, csr: u16 },
-    CSRRC { rd: IntRegister, rs1: IntRegister, csr: u16 },
-
     /* --- RV32M --- */
 
     MUL { rd: IntRegister, rs1: IntRegister, rs2: IntRegister },
@@ -225,13 +212,6 @@ impl fmt::Display for Instruction {
             FENCETSO => write!(f, "fence.tso"),
             ECALL => write!(f, "ecall"),
             EBREAK => write!(f, "ebreak"),
-            FENCEI => write!(f, "fence.i"),
-            CSRRWI { rd, uimm, csr } => write!(f, "csrrwi   {}, {}, {}", rd, csr, uimm),
-            CSRRSI { rd, uimm, csr } => write!(f, "csrrsi   {}, {}, {}", rd, csr, uimm),
-            CSRRCI { rd, uimm, csr } => write!(f, "csrrci   {}, {}, {}", rd, csr, uimm),
-            CSRRW { rd, rs1, csr } => write!(f, "csrrw    {}, {}, {}", rd, csr, rs1),
-            CSRRS { rd, rs1, csr } => write!(f, "csrrs    {}, {}, {}", rd, csr, rs1),
-            CSRRC { rd, rs1, csr } => write!(f, "csrrc    {}, {}, {}", rd, csr, rs1),
             MUL { rd, rs1, rs2 } => write!(f, "mul      {}, {}, {}", rd, rs1, rs2),
             MULH { rd, rs1, rs2 } => write!(f, "mulh     {}, {}, {}", rd, rs1, rs2),
             MULHSU { rd, rs1, rs2 } => write!(f, "mulhsu   {}, {}, {}", rd, rs1, rs2),
@@ -309,11 +289,9 @@ impl TryFrom<u32> for Instruction {
             InstructionFormat::R4 => Err(()),
             InstructionFormat::I => {
                 let rd = IntRegister::try_from(((inst >> 7) & 0b11111) as u8)?;
-                let uimm = ((inst >> 15) & 0b11111) as u8;
-                let rs1 = IntRegister::try_from(uimm)?;
+                let rs1 = IntRegister::try_from(((inst >> 15) & 0b11111) as u8)?;
                 let funct3 = ((inst >> 12) & 0b111) as u8;
                 let imm = ((inst as i32) >> 20) as i16;
-                let csr = imm as u16 & 0b111111111111;
                 let fn3_opcode = (funct3 << 5) | (opcode >> 2);
 
                 match fn3_opcode {
@@ -347,13 +325,6 @@ impl TryFrom<u32> for Instruction {
                         1 => Ok(Instruction::EBREAK),
                         _ => Err(()),
                     },
-                    0b001_00011 => Ok(Instruction::FENCEI),
-                    0b001_11100 => Ok(Instruction::CSRRW { rd, rs1, csr }),
-                    0b010_11100 => Ok(Instruction::CSRRS { rd, rs1, csr }),
-                    0b011_11100 => Ok(Instruction::CSRRC { rd, rs1, csr }),
-                    0b101_11100 => Ok(Instruction::CSRRWI { rd, uimm, csr }),
-                    0b110_11100 => Ok(Instruction::CSRRSI { rd, uimm, csr }),
-                    0b111_11100 => Ok(Instruction::CSRRCI { rd, uimm, csr }),
                     _ => Err(()),
                 }
             }

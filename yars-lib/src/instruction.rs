@@ -369,7 +369,7 @@ impl TryFrom<u32> for Instruction {
             }
             InstructionFormat::U => {
                 let rd = IntRegister::try_from(((inst >> 7) & 0b11111) as u8)?;
-                let imm = (inst & !0b111111111111) as i32;
+                let imm = (inst as i32) >> 12;
 
                 match opcode >> 2 {
                     0b01101 => Ok(Instruction::LUI { rd, imm }),

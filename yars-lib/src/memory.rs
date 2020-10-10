@@ -14,7 +14,6 @@ pub enum ProgramError {
 #[derive(Clone, Debug)]
 pub struct Memory {
     memory: Box<[u8]>,
-    offset: u32,
     entry: u32,
 }
 
@@ -22,17 +21,12 @@ impl Memory {
     pub fn new(size: u32) -> Self {
         Self {
             memory: vec![0u8; size as usize].into_boxed_slice(),
-            offset: 0,
             entry: 0,
         }
     }
 
     pub fn size(&self) -> u32 {
         self.memory.len() as u32
-    }
-
-    pub fn offset(&self) -> u32 {
-        self.offset
     }
 
     pub fn entry(&self) -> u32 {
@@ -58,12 +52,8 @@ impl Memory {
                 let vm_range = ph.vm_range();
                 let file_range = ph.file_range();
 
-                if vm_range.end > self.memory.len() {
+                if vm_range.end >= self.memory.len() {
                     return Err(ProgramError::OutOfMemory);
-                }
-
-                if vm_range.end as u32 > self.offset {
-                    self.offset = vm_range.end as u32;
                 }
 
                 for i in self.memory[vm_range].iter_mut() {

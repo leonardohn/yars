@@ -5,6 +5,7 @@ use goblin::error::Error;
 use std::convert::TryInto;
 use std::path::Path;
 
+#[derive(Debug)]
 pub enum ProgramError {
     OutOfMemory,
     UnsupportedBinary,
@@ -44,11 +45,15 @@ impl Memory {
                     return Err(ProgramError::OutOfMemory);
                 }
 
-                for i in self.memory[vm_range].iter_mut() {
-                    *i = 0;
+                let ph_size = file_range.end - file_range.start;
+                let ph_range = vm_range.start .. vm_range.start + ph_size;
+                let bss_range = vm_range.start + ph_size .. vm_range.end;
+
+                for addr in bss_range {
+                    self.memory[addr] = 0;
                 }
 
-                self.memory[file_range.clone()].copy_from_slice(&buffer[file_range]);
+                self.memory[ph_range].copy_from_slice(&buffer[file_range]);
             }
         }
 

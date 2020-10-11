@@ -14,14 +14,12 @@ pub enum ProgramError {
 #[derive(Clone, Debug)]
 pub struct Memory {
     memory: Box<[u8]>,
-    entry: u32,
 }
 
 impl Memory {
     pub fn new(size: u32) -> Self {
         Self {
             memory: vec![0u8; size as usize].into_boxed_slice(),
-            entry: 0,
         }
     }
 
@@ -29,23 +27,13 @@ impl Memory {
         self.memory.len() as u32
     }
 
-    pub fn entry(&self) -> u32 {
-        self.entry
-    }
-
-    pub fn set_entry(&mut self, entry: u32) {
-        self.entry = entry;
-    }
-
-    pub fn load_program<P: AsRef<Path>>(&mut self, program: P) -> Result<(), ProgramError> {
-        let buffer = std::fs::read(program).map_err(|e| ProgramError::Goblin(Error::IO(e)))?;
-        let binary = Elf::parse(&buffer).map_err(|e| ProgramError::Goblin(e))?;
+    pub fn load_program<P: AsRef<Path>>(&mut self, program: P) -> Result<u32, ProgramError> {
+        let buffer = std::fs::read(program).map_err(Error::IO).map_err(ProgramError::Goblin)?;
+        let binary = Elf::parse(&buffer).map_err(ProgramError::Goblin)?;
 
         if binary.header.e_machine != EM_RISCV || binary.header.e_type != ET_EXEC || binary.is_64 {
             return Err(ProgramError::UnsupportedBinary);
         }
-
-        self.entry = binary.entry as u32;
 
         for ph in binary.program_headers {
             if ph.p_type == PT_LOAD {
@@ -64,7 +52,7 @@ impl Memory {
             }
         }
 
-        Ok(())
+        Ok(binary.entry as u32)
     }
 
     pub fn read_byte(&self, address: u32) -> u8 {

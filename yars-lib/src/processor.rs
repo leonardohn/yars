@@ -1,6 +1,6 @@
 use crate::instruction::Instruction;
 use crate::memory::Memory;
-use crate::register::IntRegisterSet;
+use crate::register::{IntRegister, IntRegisterSet};
 use std::convert::TryFrom;
 
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
@@ -26,7 +26,8 @@ impl Processor {
     pub fn new(memory: Memory) -> Self {
         let pc = 0;
         let cycles = 0;
-        let registers = IntRegisterSet::new();
+        let mut registers = IntRegisterSet::new();
+        registers.write(IntRegister::SP, memory.size() - 1);
 
         Self {
             pc,

@@ -52,6 +52,14 @@ impl Processor {
         self.pc = pc;
     }
 
+    pub fn memory(&self) -> &Memory {
+        &self.memory
+    }
+
+    pub fn registers(&self) -> &IntRegisterSet {
+        &self.registers
+    }
+
     pub fn fetch(&self) -> Result<Instruction, ProcessorError> {
         if self.pc >= self.memory.size() {
             return Err(ProcessorError::IllegalFetch);

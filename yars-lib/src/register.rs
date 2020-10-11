@@ -118,15 +118,14 @@ impl TryFrom<u8> for IntRegister {
     }
 }
 
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, Default)]
 pub struct IntRegisterSet {
     reg: [u32; 32],
 }
 
 impl IntRegisterSet {
     pub fn new() -> Self {
-        let reg = [0; 32];
-        Self { reg }
+        Self::default()
     }
 
     pub fn read(&self, reg: IntRegister) -> u32 {

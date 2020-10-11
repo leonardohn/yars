@@ -108,9 +108,9 @@ pub enum Instruction {
     SW { rs1: IntRegister, rs2: IntRegister, imm: i16 },
 
     // Shift
-    SLLI { rd: IntRegister, rs1: IntRegister, shamt: u16 },
-    SRLI { rd: IntRegister, rs1: IntRegister, shamt: u16 },
-    SRAI { rd: IntRegister, rs1: IntRegister, shamt: u16 },
+    SLLI { rd: IntRegister, rs1: IntRegister, shamt: u8 },
+    SRLI { rd: IntRegister, rs1: IntRegister, shamt: u8 },
+    SRAI { rd: IntRegister, rs1: IntRegister, shamt: u8 },
     SLL { rd: IntRegister, rs1: IntRegister, rs2: IntRegister },
     SRL { rd: IntRegister, rs1: IntRegister, rs2: IntRegister },
     SRA { rd: IntRegister, rs1: IntRegister, rs2: IntRegister },
@@ -302,9 +302,24 @@ impl TryFrom<u32> for Instruction {
                     0b100_00000 => Ok(Instruction::LBU { rd, rs1, imm }),
                     0b101_00000 => Ok(Instruction::LHU { rd, rs1, imm }),
                     0b000_00100 => Ok(Instruction::ADDI { rd, rs1, imm }),
+                    0b001_00100 => {
+                        let shamt = (imm & 0b11111) as u8;
+                        match imm >> 5 {
+                            0b0000000 => Ok(Instruction::SLLI { rd, rs1, shamt }),
+                            _ => Err(()),
+                        }
+                    }
                     0b010_00100 => Ok(Instruction::SLTI { rd, rs1, imm }),
                     0b011_00100 => Ok(Instruction::SLTIU { rd, rs1, imm }),
                     0b100_00100 => Ok(Instruction::XORI { rd, rs1, imm }),
+                    0b101_00100 => {
+                        let shamt = (imm & 0b11111) as u8;
+                        match imm >> 5 {
+                            0b0000000 => Ok(Instruction::SRLI { rd, rs1, shamt }),
+                            0b0100000 => Ok(Instruction::SRAI { rd, rs1, shamt }),
+                            _ => Err(()),
+                        }
+                    }
                     0b110_00100 => Ok(Instruction::ORI { rd, rs1, imm }),
                     0b111_00100 => Ok(Instruction::ANDI { rd, rs1, imm }),
                     0b000_00011 => {

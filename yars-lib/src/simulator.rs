@@ -27,7 +27,10 @@ impl<W: Write> Simulator<W> {
         let pc = self.processor.pc();
         let inst = self.processor.fetch()?;
         self.processor.execute(inst)?;
-        self.processor.set_pc(pc.wrapping_add(4));
+
+        if pc == self.processor.pc() {
+            self.processor.set_pc(pc.wrapping_add(4));
+        }
 
         if let Some(logger) = &mut self.logger {
             let raw_inst = self.processor.memory().read_word(pc);

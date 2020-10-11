@@ -14,12 +14,13 @@ impl<W: Write> Simulator<W> {
     pub fn new<P: AsRef<Path>>(
         program: P,
         memsize: u32,
+        pc: Option<u32>,
         logger: Option<W>,
     ) -> Result<Self, ProgramError> {
         let mut memory = Memory::new(memsize);
-        let pc = memory.load_program(program)?;
+        let def_pc = memory.load_program(program)?;
         let mut processor = Processor::new(memory);
-        processor.set_pc(pc);
+        processor.set_pc(if let Some(pc) = pc { pc } else { def_pc });
         Ok(Self { processor, logger })
     }
 

@@ -200,7 +200,7 @@ impl Processor {
             }
             SLL { rd, rs1, rs2 } => {
                 let v1 = self.registers.read(rs1);
-                let v2 = self.registers.read(rs2);
+                let v2 = self.registers.read(rs2) & 0b11111;
                 let val = v1 << v2;
                 self.registers.write(rd, val);
                 self.cycles += 1;
@@ -208,7 +208,7 @@ impl Processor {
             }
             SRL { rd, rs1, rs2 } => {
                 let v1 = self.registers.read(rs1);
-                let v2 = self.registers.read(rs2);
+                let v2 = self.registers.read(rs2) & 0b11111;
                 let val = v1 >> v2;
                 self.registers.write(rd, val);
                 self.cycles += 1;
@@ -216,7 +216,7 @@ impl Processor {
             }
             SRA { rd, rs1, rs2 } => {
                 let v1 = self.registers.read(rs1) as i32;
-                let v2 = self.registers.read(rs2);
+                let v2 = self.registers.read(rs2) & 0b11111;
                 let val = (v1 >> v2) as u32;
                 self.registers.write(rd, val);
                 self.cycles += 1;
@@ -471,7 +471,7 @@ impl Processor {
             DIV { rd, rs1, rs2 } => {
                 let v1 = self.registers.read(rs1) as i32;
                 let v2 = self.registers.read(rs2) as i32;
-                let val = (v1 / v2) as u32;
+                let val = if v2 == 0 { -1 } else { v1.wrapping_div(v2) } as u32;
                 self.registers.write(rd, val);
                 self.cycles += 1;
                 Ok(())
@@ -479,7 +479,8 @@ impl Processor {
             DIVU { rd, rs1, rs2 } => {
                 let v1 = self.registers.read(rs1);
                 let v2 = self.registers.read(rs2);
-                let val = v1 / v2;
+                let v3 = u32::MAX;
+                let val = if v2 == 0 { v3 } else { v1.wrapping_div(v2) };
                 self.registers.write(rd, val);
                 self.cycles += 1;
                 Ok(())
@@ -487,7 +488,7 @@ impl Processor {
             REM { rd, rs1, rs2 } => {
                 let v1 = self.registers.read(rs1) as i32;
                 let v2 = self.registers.read(rs2) as i32;
-                let val = (v1 % v2) as u32;
+                let val = if v2 == 0 { v1 } else { v1.wrapping_rem(v2) } as u32;
                 self.registers.write(rd, val);
                 self.cycles += 1;
                 Ok(())
@@ -495,7 +496,7 @@ impl Processor {
             REMU { rd, rs1, rs2 } => {
                 let v1 = self.registers.read(rs1);
                 let v2 = self.registers.read(rs2);
-                let val = v1 % v2;
+                let val = if v2 == 0 { v1 } else { v1.wrapping_rem(v2) };
                 self.registers.write(rd, val);
                 self.cycles += 1;
                 Ok(())

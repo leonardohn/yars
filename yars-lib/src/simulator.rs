@@ -31,11 +31,6 @@ impl<W: Write> Simulator<W> {
     pub fn step(&mut self) -> Result<(), ProcessorError> {
         let pc = self.processor.pc();
         let inst = self.processor.fetch()?;
-        self.processor.execute(inst)?;
-
-        if pc == self.processor.pc() {
-            self.processor.set_pc(pc.wrapping_add(4));
-        }
 
         if let Some(logger) = &mut self.logger {
             let raw_inst = self.processor.memory().read_word(pc);
@@ -45,9 +40,12 @@ impl<W: Write> Simulator<W> {
             let rs1_id = ((raw_inst >> 15) & 0b11111) as u8;
             let rs2_id = ((raw_inst >> 20) & 0b11111) as u8;
 
-            let rd = registers.read(IntRegister::try_from(rd_id).unwrap());
             let rs1 = registers.read(IntRegister::try_from(rs1_id).unwrap());
             let rs2 = registers.read(IntRegister::try_from(rs2_id).unwrap());
+
+            self.processor.execute(inst)?;
+
+            let rd = registers.read(IntRegister::try_from(rd_id).unwrap());
 
             writeln!(
                 logger,
@@ -56,6 +54,12 @@ impl<W: Write> Simulator<W> {
                 pc, raw_inst, rd_id, rd, rs1_id, rs1, rs2_id, rs2, inst
             )
             .unwrap();
+        } else {
+            self.processor.execute(inst)?;
+        }
+
+        if pc == self.processor.pc() {
+            self.processor.set_pc(pc.wrapping_add(4));
         }
 
         Ok(())

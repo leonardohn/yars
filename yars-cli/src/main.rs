@@ -56,4 +56,6 @@ fn main() {
         },
     }
     .unwrap();
+
+    println!("Program finished (Total cycles: {}).", sim.cycles());
 }

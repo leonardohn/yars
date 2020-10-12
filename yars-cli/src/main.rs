@@ -50,7 +50,7 @@ fn main() {
                     io::stdin().read(&mut [0u8]).unwrap();
                     continue;
                 }
-                Err(ProcessorError::Ecall) => break Ok(()),
+                Err(ProcessorError::Ecall) | Err(ProcessorError::Ebreak) => break Ok(()),
                 e => break e,
             }
         },

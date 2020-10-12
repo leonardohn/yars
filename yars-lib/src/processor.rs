@@ -10,7 +10,6 @@ pub enum ProcessorError {
     IllegalAccess,
     IllegalFetch,
     InvalidOpcode,
-    MisalignedAccess,
     MisalignedFetch,
 }
 
@@ -89,10 +88,6 @@ impl Processor {
                     return Err(ProcessorError::IllegalAccess);
                 }
 
-                if addr & 0b11 != 0b00 {
-                    return Err(ProcessorError::MisalignedAccess);
-                }
-
                 let val = self.memory.read_byte(addr) as i32 as u32;
                 self.registers.write(rd, val);
                 self.cycles += 1;
@@ -103,10 +98,6 @@ impl Processor {
 
                 if addr >= self.memory.size() {
                     return Err(ProcessorError::IllegalAccess);
-                }
-
-                if addr & 0b11 != 0b00 {
-                    return Err(ProcessorError::MisalignedAccess);
                 }
 
                 let val = self.memory.read_halfword(addr) as i32 as u32;
@@ -121,10 +112,6 @@ impl Processor {
                     return Err(ProcessorError::IllegalAccess);
                 }
 
-                if addr & 0b11 != 0b00 {
-                    return Err(ProcessorError::MisalignedAccess);
-                }
-
                 let val = self.memory.read_word(addr);
                 self.registers.write(rd, val);
                 self.cycles += 1;
@@ -135,10 +122,6 @@ impl Processor {
 
                 if addr >= self.memory.size() {
                     return Err(ProcessorError::IllegalAccess);
-                }
-
-                if addr & 0b11 != 0b00 {
-                    return Err(ProcessorError::MisalignedAccess);
                 }
 
                 let val = self.memory.read_byte(addr) as u32;
@@ -153,10 +136,6 @@ impl Processor {
                     return Err(ProcessorError::IllegalAccess);
                 }
 
-                if addr & 0b11 != 0b00 {
-                    return Err(ProcessorError::MisalignedAccess);
-                }
-
                 let val = self.memory.read_halfword(addr) as u32;
                 self.registers.write(rd, val);
                 self.cycles += 1;
@@ -167,10 +146,6 @@ impl Processor {
 
                 if addr >= self.memory.size() {
                     return Err(ProcessorError::IllegalAccess);
-                }
-
-                if addr & 0b11 != 0b00 {
-                    return Err(ProcessorError::MisalignedAccess);
                 }
 
                 let val = self.registers.read(rs2) as u8;
@@ -185,10 +160,6 @@ impl Processor {
                     return Err(ProcessorError::IllegalAccess);
                 }
 
-                if addr & 0b11 != 0b00 {
-                    return Err(ProcessorError::MisalignedAccess);
-                }
-
                 let val = self.registers.read(rs2) as u16;
                 self.memory.write_halfword(addr, val);
                 self.cycles += 1;
@@ -199,10 +170,6 @@ impl Processor {
 
                 if addr >= self.memory.size() {
                     return Err(ProcessorError::IllegalAccess);
-                }
-
-                if addr & 0b11 != 0b00 {
-                    return Err(ProcessorError::MisalignedAccess);
                 }
 
                 let val = self.registers.read(rs2);

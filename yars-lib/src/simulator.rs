@@ -61,7 +61,7 @@ impl<W: Write> Simulator<W> {
         loop {
             match self.step() {
                 Ok(()) => continue,
-                Err(ProcessorError::Ecall) => break Ok(()),
+                Err(ProcessorError::Ecall) | Err(ProcessorError::Ebreak) => break Ok(()),
                 e => break e,
             }
         }

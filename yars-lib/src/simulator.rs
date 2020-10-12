@@ -24,6 +24,10 @@ impl<W: Write> Simulator<W> {
         Ok(Self { processor, logger })
     }
 
+    pub fn cycles(&self) -> usize {
+        self.processor.cycles()
+    }
+
     pub fn step(&mut self) -> Result<(), ProcessorError> {
         let pc = self.processor.pc();
         let inst = self.processor.fetch()?;

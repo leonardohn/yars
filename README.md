@@ -2,6 +2,8 @@
 
 `yars` is a RISC-V simulator that currently supports RV32IM ISA.
 
+This is work in progress and should not be used in production.
+
 ## Building
 
 To be able to build this project you will need Rust toolchain installed

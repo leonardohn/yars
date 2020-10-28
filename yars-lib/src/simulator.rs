@@ -45,6 +45,7 @@ impl<W: Write> Simulator<W> {
 
             self.processor.execute(inst)?;
 
+            let registers = self.processor.registers();
             let rd = registers.read(IntRegister::try_from(rd_id).unwrap());
 
             writeln!(

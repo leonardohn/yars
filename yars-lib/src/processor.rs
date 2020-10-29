@@ -26,7 +26,7 @@ impl Processor {
         let pc = 0;
         let cycles = 0;
         let mut registers = IntRegisterSet::new();
-        registers.write(IntRegister::SP, memory.size() - 1);
+        registers.write(IntRegister::SP, memory.size() - 4);
 
         Self {
             pc,

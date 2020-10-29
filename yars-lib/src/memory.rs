@@ -29,7 +29,9 @@ impl Memory {
     }
 
     pub fn load_program<P: AsRef<Path>>(&mut self, program: P) -> Result<u32, ProgramError> {
-        let buffer = std::fs::read(program).map_err(Error::IO).map_err(ProgramError::Goblin)?;
+        let buffer = std::fs::read(program)
+            .map_err(Error::IO)
+            .map_err(ProgramError::Goblin)?;
         let binary = Elf::parse(&buffer).map_err(ProgramError::Goblin)?;
 
         if binary.header.e_machine != EM_RISCV || binary.header.e_type != ET_EXEC || binary.is_64 {
@@ -46,8 +48,8 @@ impl Memory {
                 }
 
                 let ph_size = file_range.end - file_range.start;
-                let ph_range = vm_range.start .. vm_range.start + ph_size;
-                let bss_range = vm_range.start + ph_size .. vm_range.end;
+                let ph_range = vm_range.start..vm_range.start + ph_size;
+                let bss_range = vm_range.start + ph_size..vm_range.end;
 
                 for addr in bss_range {
                     self.memory[addr] = 0;

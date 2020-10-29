@@ -47,7 +47,7 @@ fn main() {
         true => loop {
             match sim.step() {
                 Ok(()) => {
-                    io::stdin().read(&mut [0u8]).unwrap();
+                    io::stdin().read_exact(&mut [0u8]).unwrap();
                     continue;
                 }
                 Err(ProcessorError::Ecall) | Err(ProcessorError::Ebreak) => break Ok(()),

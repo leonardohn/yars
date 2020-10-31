@@ -355,7 +355,7 @@ impl Processor {
                 let v2 = self.registers.read(rs2) as i32;
                 let v3 = imm as i32 as u32;
 
-                if v1 > v2 {
+                if v1 < v2 {
                     self.pc = self.pc.wrapping_add(v3);
                 }
 
@@ -367,7 +367,7 @@ impl Processor {
                 let v2 = self.registers.read(rs2) as i32;
                 let v3 = imm as i32 as u32;
 
-                if v1 <= v2 {
+                if v1 >= v2 {
                     self.pc = self.pc.wrapping_add(v3);
                 }
 
@@ -379,7 +379,7 @@ impl Processor {
                 let v2 = self.registers.read(rs2);
                 let v3 = imm as i32 as u32;
 
-                if v1 > v2 {
+                if v1 < v2 {
                     self.pc = self.pc.wrapping_add(v3);
                 }
 
@@ -391,7 +391,7 @@ impl Processor {
                 let v2 = self.registers.read(rs2);
                 let v3 = imm as i32 as u32;
 
-                if v1 <= v2 {
+                if v1 >= v2 {
                     self.pc = self.pc.wrapping_add(v3);
                 }
 
